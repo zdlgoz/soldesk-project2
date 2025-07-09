@@ -1,5 +1,8 @@
 name: CI/CD for SMS Sender Worker
 
+permissions:
+  contents: write
+  
 on:
   push:
     branches:
