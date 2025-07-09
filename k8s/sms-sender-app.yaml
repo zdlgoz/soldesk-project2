@@ -6,12 +6,12 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/your-org/your-repo.git'
+    repoURL: 'https://github.com/soldesk-vital/soldesk-project2'
     targetRevision: main
     path: sms_sender_worker/k8s
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: default
+    namespace: sms-sender-worker
   syncPolicy:
     automated:
       prune: true

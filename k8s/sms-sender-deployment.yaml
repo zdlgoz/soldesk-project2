@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sms-sender-worker
-  namespace: default
+  namespace: sms-sender-worker
 spec:
   replicas: 1
   selector:
