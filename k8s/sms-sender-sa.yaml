@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: sms-sender-sa
-  namespace: sms-sender-worker
-  annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::889986388555:role/eks-sms-sender-sa-role 
