@@ -24,8 +24,8 @@ app.add_middleware(
     allow_origins=[
         "https://www.highlight.monster",  # 실제 홈페이지 도메인
         "http://www.highlight.monster",  # HTTP 버전도 허용
-        "http://your-subscription-frontend.s3-website.ap-northeast-2.amazonaws.com",
-        "https://your-subscription-frontend.s3-website.ap-northeast-2.amazonaws.com",
+        "http://www.highlight.monster/subscribe.html",
+        "https://www.highlight.monster/subscribe.html",
         "http://localhost:3000",  # 개발용
         "http://localhost:8080",  # 개발용
         "http://localhost",  # 로컬 개발용
