@@ -156,6 +156,11 @@ async def get_subscription_plans():
             conn.close()
 
 
+@app.options("/user/me")
+async def options_user_me():
+    return Response(status_code=200)
+
+
 @app.get("/user/me")
 async def get_current_user_info(
     request: Request, authorization: Optional[str] = Header(None)
