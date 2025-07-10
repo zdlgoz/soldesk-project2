@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi import FastAPI, HTTPException, Depends, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import requests
@@ -115,8 +115,14 @@ def verify_jwt_token(token: str):
 
 
 # 현재 사용자 가져오기 (토큰에서)
-async def get_current_user(authorization: Optional[str] = Header(None)):
-    """Authorization 헤더에서 토큰을 추출하고 현재 사용자 정보를 반환합니다."""
+async def get_current_user(
+    request: Request, authorization: Optional[str] = Header(None)
+):
+    """Authorization 헤더에서 토큰을 추출하고 현재 사용자 정보를 반환합니다. OPTIONS 요청은 인증 검사하지 않음."""
+    if request.method == "OPTIONS":
+        # Preflight 요청은 인증 검사하지 않음
+        return None
+
     if not authorization:
         raise HTTPException(status_code=401, detail="Authorization header required")
 
