@@ -4,8 +4,8 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'app/**'
-      - 'Dockerfile'
+      - 'portone/app/**'
+      - 'portone/Dockerfile'
       - '.github/workflows/ci-cd-portone.yml'
 
 env:
@@ -39,20 +39,20 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./app
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./portone/app
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
     - name: Update kustomization
       run: |
-        cd k8s
+        cd portone/k8s
         kustomize edit set image ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
 
     - name: Commit and push changes
       run: |
         git config --global user.name 'GitHub Actions'
         git config --global user.email 'actions@github.com'
-        git add k8s/kustomization.yaml
+        git add portone/k8s/kustomization.yaml
         git commit -m "Update image to ${{ github.sha }}" || exit 0
         git push 
