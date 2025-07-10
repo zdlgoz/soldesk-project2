@@ -1,0 +1,30 @@
+# Portone 백엔드 ALB Ingress 설정 (외부 접근용)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: portone-backend-ingress     # Ingress 이름
+  namespace: portone-subscription   # 네임스페이스
+  annotations:
+    kubernetes.io/ingress.class: alb                    # ALB Ingress Controller 사용
+    alb.ingress.kubernetes.io/scheme: internet-facing   # 인터넷 접근 가능
+    alb.ingress.kubernetes.io/target-type: ip           # IP 타겟 타입 (Pod 직접 연결)
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'  # HTTP/HTTPS 포트
+    alb.ingress.kubernetes.io/ssl-redirect: '443'       # HTTP를 HTTPS로 리다이렉트
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:889986388555:certificate/6517ac91-9169-4723-abb8-3b9c66f46ae7  # SSL 인증서 ARN (버지니아 북부 리전)
+    alb.ingress.kubernetes.io/healthcheck-path: /health # 헬스체크 경로
+    alb.ingress.kubernetes.io/healthcheck-port: '8000'  # 헬스체크 포트
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP # 헬스체크 프로토콜
+    alb.ingress.kubernetes.io/success-codes: '200,302'  # 성공 응답 코드
+    alb.ingress.kubernetes.io/group.name: portone       # ALB 그룹명
+spec:
+  rules:
+  - host: www.highlight.monster        # 도메인 (실제 도메인으로 변경 필요)
+    http:
+      paths:
+      - path: /                      # 모든 경로
+        pathType: Prefix             # 경로 타입
+        backend:
+          service:
+            name: portone-backend-service  # 백엔드 서비스
+            port:
+              number: 80           # 서비스 포트 
