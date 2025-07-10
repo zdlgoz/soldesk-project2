@@ -11,6 +11,7 @@ import logging
 import pymysql
 from pymysql.cursors import DictCursor
 from functools import lru_cache
+from jwt.algorithms import RSAAlgorithm
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -114,7 +115,7 @@ def verify_jwt_token(token: str):
         public_key = None
         for key in public_keys:
             if key["kid"] == kid:
-                public_key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(key))
+                public_key = RSAAlgorithm.from_jwk(json.dumps(key))
                 break
 
         if not public_key:
