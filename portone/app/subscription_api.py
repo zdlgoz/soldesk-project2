@@ -126,7 +126,6 @@ def verify_jwt_token(token: str):
             token,
             public_key,
             algorithms=["RS256"],
-            audience=COGNITO_CLIENT_ID,
             issuer=f"https://cognito-idp.{AWS_REGION}.amazonaws.com/{COGNITO_USER_POOL_ID}",
         )
         logger.info("JWT 토큰 검증 성공")
