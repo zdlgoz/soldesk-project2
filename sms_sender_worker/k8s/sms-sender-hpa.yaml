@@ -1,0 +1,26 @@
+# SMS Sender Worker 자동 스케일링 설정 (HPA)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: sms-sender-hpa              # HPA 이름
+  namespace: sms-sender-worker      # 네임스페이스
+spec:
+  scaleTargetRef:                    # 스케일링 대상 설정
+    apiVersion: apps/v1
+    kind: Deployment                # Deployment 타입
+    name: sms-sender-worker         # 대상 Deployment 이름
+  minReplicas: 1                    # 최소 Pod 개수
+  maxReplicas: 3                    # 최대 Pod 개수 (SMS 처리용으로 적절한 수로 조정)
+  metrics:                          # 스케일링 기준 메트릭
+  - type: Resource                  # 리소스 사용량 기반
+    resource:
+      name: cpu                     # CPU 사용량 기준
+      target:
+        type: Utilization           # 사용률 기준
+        averageUtilization: 75      # CPU 75% 사용 시 스케일 아웃 (SMS 처리에 적합)
+  - type: Resource                  # 리소스 사용량 기반
+    resource:
+      name: memory                  # 메모리 사용량 기준
+      target:
+        type: Utilization           # 사용률 기준
+        averageUtilization: 80      # 메모리 80% 사용 시 스케일 아웃 

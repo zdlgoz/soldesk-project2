@@ -1,0 +1,5 @@
+# SMS Sender Worker 네임스페이스
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sms-sender-worker          # 네임스페이스 이름

@@ -1,0 +1,41 @@
+# Portone 구독 결제 백엔드 배포 설정
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portone-backend                    # 배포 이름
+  namespace: portone-subscription          # 네임스페이스 (격리된 환경)
+  labels:
+    app: portone-backend                   # 애플리케이션 라벨
+spec:
+  replicas: 1                              # 실행할 Pod 개수 (고가용성을 위해 2개)
+  selector:
+    matchLabels:
+      app: portone-backend                 # 이 배포가 관리할 Pod 선택 조건
+  template:
+    metadata:
+      labels:
+        app: portone-backend               # Pod에 붙일 라벨
+    spec:
+      serviceAccountName: portone-backend-sa  # IAM 역할을 사용할 서비스 계정
+      containers:
+      - name: portone-backend              # 컨테이너 이름
+        image: 889986388555.dkr.ecr.ap-northeast-2.amazonaws.com/portone-backend:latest  # ECR에서 가져올 Docker 이미지
+        ports:
+        - containerPort: 8000              # 컨테이너가 사용할 포트 (FastAPI 기본 포트)
+        envFrom:                           # 환경 변수 설정
+        - configMapRef:                    # ConfigMap에서 환경 변수 가져오기
+            name: portone-config           # ConfigMap 이름 (포트원 API 키, RDS 설정 등)
+        - secretRef:                       # Secret에서 민감한 환경 변수 가져오기
+            name: portone-secrets          # Secret 이름 (RDS 비밀번호, Cognito 시크릿 등)
+        resources:                         # 리소스 제한 설정
+          requests:                        # 최소 요구 리소스
+            memory: "256Mi"                # 최소 메모리 256MB
+            cpu: "250m"                    # 최소 CPU 0.25코어
+          limits:                          # 최대 사용 가능 리소스
+            memory: "512Mi"                # 최대 메모리 512MB
+            cpu: "500m"                    # 최대 CPU 0.5코어
+        imagePullPolicy: Always            # 항상 최신 이미지 가져오기
+        securityContext:                   # 보안 컨텍스트 설정
+          runAsNonRoot: true               # root가 아닌 사용자로 실행
+          runAsUser: 1000                  # 사용자 ID 1000으로 실행
+          allowPrivilegeEscalation: false  # 권한 상승 방지 

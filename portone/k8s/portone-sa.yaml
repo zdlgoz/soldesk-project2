@@ -1,0 +1,8 @@
+# Portone 백엔드 서비스 계정 (AWS IAM 역할 연결용)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: portone-backend-sa           # 서비스 계정 이름
+  namespace: portone-subscription    # 네임스페이스
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::889986388555:role/eks-portone-backend-sa-role  # AWS IAM 역할 ARN (실제 생성된 역할)

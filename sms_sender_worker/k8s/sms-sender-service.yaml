@@ -1,0 +1,14 @@
+# SMS Sender Worker 서비스 설정 (내부 통신용)
+apiVersion: v1
+kind: Service
+metadata:
+  name: sms-sender-worker         # 서비스 이름
+  namespace: sms-sender-worker    # 네임스페이스
+spec:
+  selector:                       # 어떤 Pod에 연결할지 선택
+    app: sms-sender-worker        # sms-sender-worker 라벨을 가진 Pod 선택
+  ports:                          # 포트 설정
+    - protocol: TCP               # TCP 프로토콜 사용
+      port: 8000                  # 서비스 포트 (내부 접근용)
+      targetPort: 8000            # Pod 내부 포트
+  type: ClusterIP                 # 클러스터 내부 통신용 (외부 접근 불가) 

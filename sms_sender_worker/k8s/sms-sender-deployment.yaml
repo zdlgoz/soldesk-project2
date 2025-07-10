@@ -1,0 +1,36 @@
+# SMS Sender Worker 배포 설정
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sms-sender-worker        # Deployment 이름
+  namespace: sms-sender-worker   # 네임스페이스
+spec:
+  replicas: 1                    # 실행할 Pod 개수 (현재 1개로 설정)
+  selector:                      # Pod 선택 조건
+    matchLabels:
+      app: sms-sender-worker     # sms-sender-worker 라벨을 가진 Pod 선택
+  template:                      # Pod 템플릿
+    metadata:
+      labels:
+        app: sms-sender-worker   # Pod 라벨
+    spec:
+      serviceAccountName: sms-sender-sa  # AWS IAM 역할 연결용 서비스 계정
+      containers:                # 컨테이너 설정
+      - name: sms-sender-worker  # 컨테이너 이름
+        image: 889986388555.dkr.ecr.ap-northeast-2.amazonaws.com/sms-sender-worker:2ffb223367e58ba83358763d389bfdc36f1511b8
+        ports:                   # 포트 설정
+        - containerPort: 8000    # 컨테이너 내부 포트
+        envFrom:                 # 환경변수 설정 (Secret에서 가져오기)
+        - secretRef:
+            name: sms-sender-secret  # SMS 발송 관련 시크릿 (API 키 등)
+        securityContext:         # 보안 컨텍스트 설정
+          runAsNonRoot: true     # root가 아닌 사용자로 실행
+          runAsUser: 1000        # 사용자 ID 1000으로 실행
+          allowPrivilegeEscalation: false  # 권한 상승 방지
+        resources:               # 리소스 요청 및 제한
+          requests:              # 최소 요청 리소스
+            memory: "256Mi"      # 최소 메모리 256MB (SMS 처리용 메모리)
+            cpu: "200m"          # 최소 CPU 0.2 코어 (SMS 처리용 CPU)
+          limits:                # 최대 사용 가능 리소스
+            memory: "512Mi"      # 최대 메모리 512MB
+            cpu: "500m"          # 최대 CPU 0.5 코어 

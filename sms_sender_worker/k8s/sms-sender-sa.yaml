@@ -1,0 +1,8 @@
+# SMS Sender Worker 서비스 계정 (AWS IAM 역할 연결용)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sms-sender-sa              # 서비스 계정 이름
+  namespace: sms-sender-worker     # 네임스페이스
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::889986388555:role/eks-sms-sender-sa-role  # AWS IAM 역할 ARN (실제 생성된 역할) 

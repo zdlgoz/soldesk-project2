@@ -1,0 +1,47 @@
+name: CI/CD for SMS Sender Worker
+
+permissions:
+  contents: write
+  
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - sms_sender_worker/**
+      - .github/workflows/ci-cd-sms.yml
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to ECR
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker build -t 889986388555.dkr.ecr.ap-northeast-2.amazonaws.com/sms-sender-worker:$IMAGE_TAG ./sms_sender_worker/app
+          docker push 889986388555.dkr.ecr.ap-northeast-2.amazonaws.com/sms-sender-worker:$IMAGE_TAG
+
+      - name: Update K8s manifest image tag
+        run: |
+          sed -i "s|image:.*|image: 889986388555.dkr.ecr.ap-northeast-2.amazonaws.com/sms-sender-worker:${{ github.sha }}|g" sms_sender_worker/k8s/sms-sender-deployment.yaml
+
+      - name: Commit and push manifest
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add sms_sender_worker/k8s/sms-sender-deployment.yaml
+          git commit -m "Update image tag to ${{ github.sha }}"
+          git push

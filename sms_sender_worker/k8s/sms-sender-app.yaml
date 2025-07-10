@@ -1,0 +1,21 @@
+# ArgoCD 애플리케이션 설정 (SMS Sender Worker)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sms-sender-worker           # ArgoCD 애플리케이션 이름
+  namespace: argocd                 # ArgoCD 네임스페이스
+spec:
+  project: default                  # ArgoCD 프로젝트
+  source:                           # 소스 저장소 설정
+    repoURL: 'https://github.com/soldesk-vital/soldesk-project2'  # GitHub 저장소 URL
+    targetRevision: main            # 대상 브랜치
+    path: sms_sender_worker/k8s     # Kubernetes 매니페스트 경로 (github 폴더 기준)
+  destination:                      # 배포 대상 설정
+    server: 'https://kubernetes.default.svc'  # EKS 클러스터
+    namespace: sms-sender-worker    # 배포할 네임스페이스
+  syncPolicy:                       # 동기화 정책
+    automated:                      # 자동 동기화 설정
+      prune: true                   # 삭제된 리소스 자동 제거
+      selfHeal: true                # 수동 변경사항 자동 복구
+    syncOptions:                    # 동기화 옵션
+      - CreateNamespace=true        # 네임스페이스 자동 생성 

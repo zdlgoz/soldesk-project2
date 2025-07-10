@@ -1,0 +1,7 @@
+# Portone 구독 서비스 네임스페이스
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: portone-subscription        # 네임스페이스 이름
+  labels:
+    name: portone-subscription      # 네임스페이스 라벨 

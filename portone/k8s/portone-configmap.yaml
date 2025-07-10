@@ -1,0 +1,24 @@
+# Portone 백엔드 설정값 관리 (환경변수)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: portone-config                # 설정 맵 이름
+  namespace: portone-subscription     # 네임스페이스
+data:
+  # Portone 결제 서비스 설정
+  IMP_KEY: "3310784806446756"         # Portone API 키 (실제 값으로 변경 필요)
+  IMP_SECRET: "Hw6Zuz69UEbszlwdREABKjrFWKe4Pm2wEEwnraJwVRZTP1nahtKS2B1XgOyOAFfIydLn1EZG0aDcBgE8"  # Portone 시크릿 키 (실제 값으로 변경 필요)
+  
+  # AWS RDS 데이터베이스 설정
+  RDS_HOST: "portone-mysql.c7iy4m2gg5lq.ap-northeast-2.rds.amazonaws.com"  # RDS 엔드포인트 (실제 값으로 변경 필요)
+  RDS_PORT: "3306"                    # MySQL 포트
+  RDS_USER: "admin"                   # 데이터베이스 사용자명
+  RDS_DB: "portone_payments"          # 데이터베이스 이름
+  
+  # AWS Cognito 인증 설정
+  COGNITO_USER_POOL_ID: "ap-northeast-2_XRxHICvZV"  # Cognito 사용자 풀 ID (실제 값으로 변경 필요)
+  COGNITO_CLIENT_ID: "25f4q1aenptbg2pfbf7udi9238"  # Cognito 클라이언트 ID (실제 값으로 변경 필요)
+  COGNITO_DOMAIN: "tfs.auth.ap-northeast-2.amazoncognito.com"  # Cognito 도메인 (https:// 제외, 실제 값으로 변경 필요)
+  
+  # AWS 리전 설정
+  AWS_REGION: "ap-northeast-2"        # AWS 리전 (서울) 
