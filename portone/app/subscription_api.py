@@ -293,3 +293,8 @@ async def get_current_subscription_user_info(
         if "conn" in locals():
             conn.close()
 
+
+@app.options("/{rest_of_path:path}")
+async def preflight_handler(rest_of_path: str):
+    return Response(status_code=200)
+
