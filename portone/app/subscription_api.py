@@ -23,7 +23,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://api.highlight.monster",  # 실제 홈페이지 도메인
-        "http://api.highlight.monster",  # HTTP 버전도 허용
+        "http://api.highlight.monster",
+        "https://www.highlight.monster",
+        "http://www.highlight.monster",
     ],
     allow_credentials=True,
     allow_methods=["*"],
