@@ -12,10 +12,7 @@ import logging
 import pymysql
 from pymysql.cursors import DictCursor
 from fastapi.responses import JSONResponse, Response
-<<<<<<< HEAD
 from functools import lru_cache
-=======
->>>>>>> 64d5b00be49da19d77f2ba9868a1de3d7b0383c7
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -23,22 +20,15 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Portone Subscription API", version="1.0.0")
 
-# CORS 설정 - 실제 도메인 허용
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=[
-#         "https://www.highlight.monster",
-#         "https://api.highlight.monster",
-#     ],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+origins = [
+    "https://www.highlight.monster",
+    "https://api.highlight.monster",
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,  # credentials 필요 없을 때만!
+    allow_origins=origins,  # 명확한 도메인만 허용
+    allow_credentials=True, # 인증 필요시 True
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -66,7 +56,6 @@ AWS_REGION = os.getenv("AWS_REGION", "ap-northeast-2")
 cognito_client = boto3.client("cognito-idp", region_name=AWS_REGION)
 
 
-<<<<<<< HEAD
 def get_db_connection():
     try:
         conn = pymysql.connect(
@@ -87,9 +76,6 @@ def get_db_connection():
 
 @lru_cache(maxsize=1)
 def get_cognito_public_keys_cached():
-=======
-def get_cognito_public_keys():
->>>>>>> 64d5b00be49da19d77f2ba9868a1de3d7b0383c7
     try:
         response = requests.get(
             f"https://cognito-idp.{AWS_REGION}.amazonaws.com/{COGNITO_USER_POOL_ID}/.well-known/jwks.json"
@@ -100,12 +86,8 @@ def get_cognito_public_keys():
         logger.error(f"Cognito 공개키 가져오기 실패: {e}")
         return None
 
-<<<<<<< HEAD
 def get_cognito_public_keys():
     return get_cognito_public_keys_cached()
-
-=======
->>>>>>> 64d5b00be49da19d77f2ba9868a1de3d7b0383c7
 
 def verify_jwt_token(token: str):
     try:
@@ -166,17 +148,10 @@ async def get_current_user(
     }
 
 
-@app.options("/subscription/plans")
-async def options_subscription_plans():
-    return Response(status_code=200)
-
-
 @app.get("/subscription/plans")
 async def get_subscription_plans():
     try:
-<<<<<<< HEAD
         conn = get_db_connection()
-=======
         conn = pymysql.connect(
             host=RDS_HOST,
             port=RDS_PORT,
@@ -188,27 +163,18 @@ async def get_subscription_plans():
             autocommit=True,
             connect_timeout=10,
         )
->>>>>>> 64d5b00be49da19d77f2ba9868a1de3d7b0383c7
         with conn.cursor() as cursor:
             cursor.execute("SELECT * FROM subscription_plans WHERE is_active = TRUE")
             plans = cursor.fetchall()
         return {"plans": plans}
-<<<<<<< HEAD
     except HTTPException as e:
         raise e
-=======
->>>>>>> 64d5b00be49da19d77f2ba9868a1de3d7b0383c7
     except Exception as e:
         logger.error(f"Failed to get subscription plans: {e}")
         raise HTTPException(status_code=500, detail=f"Database error: {e}")
     finally:
         if "conn" in locals():
             conn.close()
-
-
-@app.options("/user/me")
-async def options_user_me():
-    return Response(status_code=200)
 
 
 @app.get("/user/me")
@@ -219,9 +185,7 @@ async def get_current_user_info(
         return JSONResponse(content={}, status_code=200)
     current_user = await get_current_user(request, authorization)
     try:
-<<<<<<< HEAD
         conn = get_db_connection()
-=======
         conn = pymysql.connect(
             host=RDS_HOST,
             port=RDS_PORT,
@@ -233,7 +197,6 @@ async def get_current_user_info(
             autocommit=True,
             connect_timeout=10,
         )
->>>>>>> 64d5b00be49da19d77f2ba9868a1de3d7b0383c7
         with conn.cursor() as cursor:
             cursor.execute(
                 """
@@ -266,7 +229,6 @@ async def get_current_user_info(
                 }
             else:
                 return current_user
-<<<<<<< HEAD
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -277,14 +239,64 @@ async def get_current_user_info(
             conn.close()
 
 
-@app.options("/subscription/user/me")
-async def options_subscription_user_me():
-    return Response(status_code=200)
-=======
+@app.get("/subscription/user/me")
+async def get_current_subscription_user_info(
+    request: Request, authorization: Optional[str] = Header(None)
+):
+    if request.method == "OPTIONS":
+        return JSONResponse(content={}, status_code=200)
+    current_user = await get_current_user(request, authorization)
+    try:
+        conn = get_db_connection()
+        conn = pymysql.connect(
+            host=RDS_HOST,
+            port=RDS_PORT,
+            user=RDS_USER,
+            password=RDS_PASSWORD,
+            db=RDS_DB,
+            charset="utf8mb4",
+            cursorclass=DictCursor,
+            autocommit=True,
+            connect_timeout=10,
+        )
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT user_id, email, name, last_login, created_at, updated_at
+                FROM users WHERE user_id = %s
+                """,
+                (current_user["user_id"],),
+            )
+            user_data = cursor.fetchone()
+            if user_data:
+                return {
+                    "user_id": user_data["user_id"],
+                    "email": user_data["email"],
+                    "name": user_data["name"],
+                    "last_login": (
+                        user_data["last_login"].isoformat()
+                        if user_data["last_login"]
+                        else None
+                    ),
+                    "created_at": (
+                        user_data["created_at"].isoformat()
+                        if user_data["created_at"]
+                        else None
+                    ),
+                    "updated_at": (
+                        user_data["updated_at"].isoformat()
+                        if user_data["updated_at"]
+                        else None
+                    ),
+                }
+            else:
+                return current_user
+    except HTTPException as e:
+        raise e
     except Exception as e:
         logger.error(f"사용자 정보 조회 실패: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get user information")
+        raise HTTPException(status_code=500, detail=f"Failed to get user information: {e}")
     finally:
         if "conn" in locals():
             conn.close()
->>>>>>> 64d5b00be49da19d77f2ba9868a1de3d7b0383c7
+
