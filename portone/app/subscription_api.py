@@ -18,14 +18,19 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Portone Subscription API", version="1.0.0")
 
-# CORS 설정 - S3 도메인 허용
+# CORS 설정 - 실제 도메인 허용
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://www.highlight.monster",  # 실제 홈페이지 도메인
+        "http://www.highlight.monster",  # HTTP 버전도 허용
         "http://your-subscription-frontend.s3-website.ap-northeast-2.amazonaws.com",
         "https://your-subscription-frontend.s3-website.ap-northeast-2.amazonaws.com",
         "http://localhost:3000",  # 개발용
         "http://localhost:8080",  # 개발용
+        "http://localhost",  # 로컬 개발용
+        "http://127.0.0.1",  # 로컬 개발용
+        "file://",  # 로컬 파일 접근용
     ],
     allow_credentials=True,
     allow_methods=["*"],
