@@ -299,7 +299,11 @@ async def exchange_code_for_token(code: str, redirect_uri: str):
 
 # ------------------- 현재 사용자 정보 엔드포인트 -------------------
 @app.get("/user/me")
-async def get_current_user_info(current_user: dict = Depends(get_current_user)):
+async def get_current_user_info(
+    request: Request, current_user: dict = Depends(get_current_user)
+):
+    if request.method == "OPTIONS" or current_user is None:
+        return
     """현재 로그인된 사용자의 정보를 반환합니다."""
     try:
         # MySQL에서 사용자 정보 가져오기
@@ -368,7 +372,11 @@ async def get_subscription_plans():
 
 # ------------------- 사용자 구독 정보 조회 -------------------
 @app.get("/subscription/user/me")
-async def get_user_subscription(current_user: dict = Depends(get_current_user)):
+async def get_user_subscription(
+    request: Request, current_user: dict = Depends(get_current_user)
+):
+    if request.method == "OPTIONS" or current_user is None:
+        return
     """현재 로그인한 사용자의 구독 정보 조회 API"""
     try:
         conn = get_db()
@@ -401,8 +409,12 @@ async def get_user_subscription(current_user: dict = Depends(get_current_user)):
 # ------------------- 결제 검증 및 구독 생성 -------------------
 @app.post("/subscription/verify-payment")
 async def verify_subscription_payment(
-    data: PaymentVerification, current_user: dict = Depends(get_current_user)
+    request: Request,
+    data: PaymentVerification,
+    current_user: dict = Depends(get_current_user),
 ):
+    if request.method == "OPTIONS" or current_user is None:
+        return
     """결제 성공 후 구독 생성 및 결제 내역 저장 API"""
     try:
         # 1. 포트원 결제 정보 조회
@@ -500,8 +512,12 @@ async def verify_subscription_payment(
 # ------------------- 구독 취소 -------------------
 @app.post("/subscription/cancel")
 async def cancel_subscription(
-    data: CancellationRequest, current_user: dict = Depends(get_current_user)
+    request: Request,
+    data: CancellationRequest,
+    current_user: dict = Depends(get_current_user),
 ):
+    if request.method == "OPTIONS" or current_user is None:
+        return
     """구독 취소 API"""
     try:
         conn = get_db()
