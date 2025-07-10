@@ -11,6 +11,7 @@ from typing import Optional
 import logging
 import pymysql
 from pymysql.cursors import DictCursor
+from fastapi.responses import JSONResponse
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -303,7 +304,7 @@ async def get_current_user_info(
     request: Request, current_user: dict = Depends(get_current_user)
 ):
     if request.method == "OPTIONS" or current_user is None:
-        return
+        return JSONResponse(content={}, status_code=200)
     """현재 로그인된 사용자의 정보를 반환합니다."""
     try:
         # MySQL에서 사용자 정보 가져오기
@@ -376,7 +377,7 @@ async def get_user_subscription(
     request: Request, current_user: dict = Depends(get_current_user)
 ):
     if request.method == "OPTIONS" or current_user is None:
-        return
+        return JSONResponse(content={}, status_code=200)
     """현재 로그인한 사용자의 구독 정보 조회 API"""
     try:
         conn = get_db()
@@ -414,7 +415,7 @@ async def verify_subscription_payment(
     current_user: dict = Depends(get_current_user),
 ):
     if request.method == "OPTIONS" or current_user is None:
-        return
+        return JSONResponse(content={}, status_code=200)
     """결제 성공 후 구독 생성 및 결제 내역 저장 API"""
     try:
         # 1. 포트원 결제 정보 조회
@@ -517,7 +518,7 @@ async def cancel_subscription(
     current_user: dict = Depends(get_current_user),
 ):
     if request.method == "OPTIONS" or current_user is None:
-        return
+        return JSONResponse(content={}, status_code=200)
     """구독 취소 API"""
     try:
         conn = get_db()
