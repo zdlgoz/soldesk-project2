@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Header, Request, Depends
+from fastapi import FastAPI, HTTPException, Header, Request, Depends, Body
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 import jwt
@@ -276,4 +276,48 @@ async def get_current_subscription_user_info(
     else:
         logger.info(f"DB에서 구독 사용자 정보 없음, 토큰 정보 반환: {current_user['user_id']}")
         return current_user # DB에 없는 경우, 토큰에서 얻은 기본 정보 반환
+
+
+@app.post("/subscription/verify-payment")
+async def verify_payment(
+    request: Request,
+    authorization: str = Header(None),
+    body: dict = Body(...)
+):
+    # 프론트엔드에서 imp_uid, plan_id, customer_uid, merchant_uid, pg_provider를 보낸다고 가정
+    imp_uid = body.get("imp_uid")
+    plan_id = body.get("plan_id")
+    customer_uid = body.get("customer_uid")
+    merchant_uid = body.get("merchant_uid")
+    pg_provider = body.get("pg_provider")
+
+    # 실제로는 TossPayments API에 imp_uid 등으로 결제 상태를 조회해야 함
+    # 아래는 예시(아임포트 V1 API 사용)
+    import requests
+    IMP_KEY = os.getenv("IMP_KEY", "3310784806446756")
+    IMP_SECRET = os.getenv("IMP_SECRET", "Hw6Zuz69UEbszlwdREABKjrFWKe4Pm2wEEwnraJwVRZTP1nahtKS2B1XgOyOAFfIydLn1EZG0aDcBgE8")
+
+    # 1. 아임포트 토큰 발급
+    token_res = requests.post(
+        "https://api.iamport.kr/users/getToken",
+        json={"imp_key": IMP_KEY, "imp_secret": IMP_SECRET}
+    )
+    if token_res.status_code != 200:
+        return {"status": "fail", "message": "아임포트 토큰 발급 실패"}
+    access_token = token_res.json()["response"]["access_token"]
+
+    # 2. 결제 정보 조회
+    pay_res = requests.get(
+        f"https://api.iamport.kr/payments/{imp_uid}",
+        headers={"Authorization": access_token}
+    )
+    if pay_res.status_code != 200:
+        return {"status": "fail", "message": "결제 정보 조회 실패"}
+    pay_data = pay_res.json()["response"]
+
+    # 3. 결제 상태/금액 등 검증(예시)
+    if pay_data["status"] == "paid":
+        return {"status": "success", "message": "결제 완료", "data": pay_data}
+    else:
+        return {"status": "fail", "message": f"결제 상태: {pay_data['status']}"}
 
