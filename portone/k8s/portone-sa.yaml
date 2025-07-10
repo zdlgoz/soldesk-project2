@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: portone-backend-sa
+  namespace: portone-subscription
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::889986388555:role/eks-portone-backend-sa-role 

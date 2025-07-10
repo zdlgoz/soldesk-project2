@@ -15,6 +15,7 @@ spec:
       labels:
         app: portone-backend
     spec:
+      serviceAccountName: portone-backend-sa
       containers:
       - name: portone-backend
         image: 889986388555.dkr.ecr.ap-northeast-2.amazonaws.com/portone-backend:latest  # 실제 ECR 이미지로 변경 필요
