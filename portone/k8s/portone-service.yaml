@@ -13,4 +13,4 @@ spec:
   - protocol: TCP                      # TCP 프로토콜 사용
     port: 80                           # 외부에서 접근할 포트 (HTTP)
     targetPort: 8000                   # Pod 내부 포트 (FastAPI 포트)
-  type: ClusterIP                      # 클러스터 내부 통신용 (ALB Ingress가 외부 접근 처리) 
+  type: LoadBalancer                   # 외부 LoadBalancer 생성 (ALB 없이 직접 접근) 
