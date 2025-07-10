@@ -20,13 +20,21 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="Portone Subscription API", version="1.0.0")
 
 # CORS 설정 - 실제 도메인 허용
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=[
+#         "https://www.highlight.monster",
+#         "https://api.highlight.monster",
+#     ],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://www.highlight.monster",
-        "https://api.highlight.monster",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,  # credentials 필요 없을 때만!
     allow_methods=["*"],
     allow_headers=["*"],
 )
