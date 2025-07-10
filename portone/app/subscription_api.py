@@ -22,15 +22,8 @@ app = FastAPI(title="Portone Subscription API", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://www.highlight.monster",  # 실제 홈페이지 도메인
-        "http://www.highlight.monster",  # HTTP 버전도 허용
-        "http://www.highlight.monster/subscribe.html",
-        "https://www.highlight.monster/subscribe.html",
-        "http://localhost:3000",  # 개발용
-        "http://localhost:8080",  # 개발용
-        "http://localhost",  # 로컬 개발용
-        "http://127.0.0.1",  # 로컬 개발용
-        "file://",  # 로컬 파일 접근용
+        "https://api.highlight.monster",  # 실제 홈페이지 도메인
+        "http://api.highlight.monster",  # HTTP 버전도 허용
     ],
     allow_credentials=True,
     allow_methods=["*"],
