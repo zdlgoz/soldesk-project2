@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: portone
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/soldesk-vital/soldesk-project2'
+    targetRevision: main
+    path: portone/k8s
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: portone
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true 

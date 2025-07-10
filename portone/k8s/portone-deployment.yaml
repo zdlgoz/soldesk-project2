@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portone-backend
+  namespace: portone-subscription
+  labels:
+    app: portone-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: portone-backend
+  template:
+    metadata:
+      labels:
+        app: portone-backend
+    spec:
+      containers:
+      - name: portone-backend
+        image: 889986388555.dkr.ecr.ap-northeast-2.amazonaws.com/portone-backend:latest  # 실제 ECR 이미지로 변경 필요
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: portone-config
+        - secretRef:
+            name: portone-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        imagePullPolicy: Always 

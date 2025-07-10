@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: portone-backend-service
+  namespace: portone-subscription
+  labels:
+    app: portone-backend
+spec:
+  selector:
+    app: portone-backend
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
+  type: ClusterIP 

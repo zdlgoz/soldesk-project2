@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: portone-config
+  namespace: portone-subscription
+data:
+  IMP_KEY: "3310784806446756"
+  IMP_SECRET: "Hw6Zuz69UEbszlwdREABKjrFWKe4Pm2wEEwnraJwVRZTP1nahtKS2B1XgOyOAFfIydLn1EZG0aDcBgE8"
+  RDS_HOST: "portone-mysql.c7iy4m2gg5lq.ap-northeast-2.rds.amazonaws.com"  # 실제 RDS 엔드포인트로 변경 필요
+  RDS_PORT: "3306"
+  RDS_USER: "admin"
+  RDS_DB: "portone_payments"
+  COGNITO_USER_POOL_ID: "ap-northeast-2_XRxHICvZV"  # 실제 Cognito User Pool ID로 변경 필요
+  COGNITO_CLIENT_ID: "25f4q1aenptbg2pfbf7udi9238"  # 실제 Client ID로 변경 필요
+  COGNITO_DOMAIN: "tfs.auth.ap-northeast-2.amazoncognito.com"  # 실제 도메인으로 변경 필요
+  AWS_REGION: "ap-northeast-2" 
