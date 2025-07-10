@@ -130,9 +130,6 @@ def verify_jwt_token(token: str):
 async def get_current_user(
     request: Request, authorization: Optional[str] = Header(None)
 ):
-    if request.method == "OPTIONS":
-        return None
-
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(
             status_code=401, detail="Invalid or missing Authorization header"
@@ -181,8 +178,6 @@ async def get_subscription_plans():
 async def get_current_user_info(
     request: Request, authorization: Optional[str] = Header(None)
 ):
-    if request.method == "OPTIONS":
-        return JSONResponse(content={}, status_code=200)
     current_user = await get_current_user(request, authorization)
     try:
         conn = get_db_connection()
@@ -243,8 +238,6 @@ async def get_current_user_info(
 async def get_current_subscription_user_info(
     request: Request, authorization: Optional[str] = Header(None)
 ):
-    if request.method == "OPTIONS":
-        return JSONResponse(content={}, status_code=200)
     current_user = await get_current_user(request, authorization)
     try:
         conn = get_db_connection()
