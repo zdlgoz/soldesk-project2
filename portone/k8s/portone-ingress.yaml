@@ -8,10 +8,10 @@ metadata:
     alb.ingress.kubernetes.io/scheme: "internet-facing"
     alb.ingress.kubernetes.io/target-type: "ip"
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:ap-northeast-2:your-account:certificate/your-cert-id"  # SSL 인증서 ARN (선택사항)
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:889986388555:certificate/6517ac91-9169-4723-abb8-3b9c66f46ae7"  # SSL 인증서 ARN (선택사항)
 spec:
   rules:
-  - host: api.yourdomain.com  # 실제 도메인으로 변경 필요
+  - host: www.highlight.monster  # 실제 도메인으로 변경 필요
     http:
       paths:
       - path: /
