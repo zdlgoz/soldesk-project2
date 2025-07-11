@@ -169,28 +169,12 @@ def verify_jwt_token(token: str):
         )
         logger.info(f"토큰 검증 시도 - Issuer: {issuer}")
 
+        # audience 검증 항상 수행
         verify_options = {
             "algorithms": ["RS256"],
             "issuer": issuer,
+            "audience": COGNITO_CLIENT_ID,
         }
-
-        # 토큰에 aud claim이 있는지 확인하고, 있으면 audience 검증 수행
-        try:
-            unverified_payload = jwt.decode(token, options={"verify_signature": False})
-            if (
-                "aud" in unverified_payload
-                and COGNITO_CLIENT_ID
-                and not COGNITO_CLIENT_ID.startswith("your-")
-            ):
-                verify_options["audience"] = COGNITO_CLIENT_ID
-                logger.info(f"Audience 검증 활성화: {COGNITO_CLIENT_ID}")
-            else:
-                logger.info(
-                    "Audience 검증 비활성화 (토큰에 aud claim이 없거나 CLIENT_ID가 설정되지 않음)"
-                )
-        except Exception as e:
-            logger.warning(f"토큰 페이로드 확인 중 오류: {e}")
-            # 오류가 발생해도 기본 검증은 계속 진행
 
         payload = jwt.decode(token, public_key, **verify_options)
         logger.info("JWT 토큰 검증 성공")
@@ -236,11 +220,19 @@ async def get_current_user(
             status_code=500, detail="Could not retrieve user ID from token payload."
         )
 
+    # user_name 추출 최적화
+    user_name = (
+        payload.get("name")
+        or payload.get("cognito:username")
+        or payload.get("username")
+        or user_id
+    )
+
     return {
         "user_id": user_id,
         "sub": payload.get("sub"),
         "email": payload.get("email"),
-        "name": payload.get("name") or payload.get("cognito:username"),
+        "name": user_name,
     }
 
 
@@ -532,6 +524,19 @@ async def verify_payment(
                 }
 
             # 5. 사용자 정보 저장/업데이트
+            # JWT 토큰에서 email이 항상 들어오므로, 대체 코드 제거
+            user_email = current_user.get("email")
+            user_name = (
+                current_user.get("name")
+                or current_user.get("cognito:username")
+                or current_user.get("username")
+                or user_id
+            )
+
+            logger.info(
+                f"사용자 정보 저장 - ID: {user_id}, Email: {user_email}, Name: {user_name}"
+            )
+
             cursor.execute(
                 """
                 INSERT INTO users (user_id, email, name, sub, last_login) 
@@ -543,8 +548,8 @@ async def verify_payment(
             """,
                 (
                     user_id,
-                    current_user.get("email", ""),
-                    current_user.get("name", ""),
+                    user_email,
+                    user_name,
                     current_user.get("sub", ""),
                 ),
             )
