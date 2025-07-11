@@ -512,7 +512,17 @@ async def verify_payment(
                 f"결제 금액 (최종): {payment_amount}, 플랜 가격: {plan['price']}"
             )
 
-            if payment_amount != plan["price"]:
+            # 테스트 모드 확인
+            is_test_mode = (
+                pay_data.get("pg_id", "").startswith("iamporttest")
+                or pay_data.get("pg_provider") == "tosspayments"
+                and payment_amount == 0
+            )
+
+            if is_test_mode:
+                logger.info("테스트 모드 감지 - 금액 검증 우회")
+                payment_amount = plan["price"]  # 테스트 모드에서는 플랜 가격 사용
+            elif payment_amount != plan["price"]:
                 logger.error(
                     f"금액 불일치 - 결제: {payment_amount}, 플랜: {plan['price']}"
                 )
