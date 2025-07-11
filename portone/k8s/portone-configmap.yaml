@@ -16,8 +16,8 @@ data:
   RDS_DB: "portone_payments"          # 데이터베이스 이름
   
   # AWS Cognito 인증 설정
-  COGNITO_USER_POOL_ID: "ap-northeast-2_XRxHICvZV"  # Cognito 사용자 풀 ID (실제 값으로 변경 필요)
-  COGNITO_CLIENT_ID: "25f4q1aenptbg2pfbf7udi9238"  # Cognito 클라이언트 ID (실제 값으로 변경 필요)
+  COGNITO_USER_POOL_ID: "ap-northeast-2_XRxHICvZV"  # Cognito 콘솔의 User Pool ID와 반드시 일치해야 함
+  COGNITO_CLIENT_ID: "25f4q1aenptbg2pfbf7udi9238"  # Cognito 콘솔의 App Client ID와 반드시 일치해야 함
   COGNITO_DOMAIN: "tfs.auth.ap-northeast-2.amazoncognito.com"  # Cognito 도메인 (https:// 제외, 실제 값으로 변경 필요)
   
   # AWS 리전 설정
