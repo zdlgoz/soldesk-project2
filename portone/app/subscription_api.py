@@ -174,8 +174,23 @@ def verify_jwt_token(token: str):
             "issuer": issuer,
         }
 
-        if COGNITO_CLIENT_ID and not COGNITO_CLIENT_ID.startswith("your-"):
-            verify_options["audience"] = COGNITO_CLIENT_ID
+        # 토큰에 aud claim이 있는지 확인하고, 있으면 audience 검증 수행
+        try:
+            unverified_payload = jwt.decode(token, options={"verify_signature": False})
+            if (
+                "aud" in unverified_payload
+                and COGNITO_CLIENT_ID
+                and not COGNITO_CLIENT_ID.startswith("your-")
+            ):
+                verify_options["audience"] = COGNITO_CLIENT_ID
+                logger.info(f"Audience 검증 활성화: {COGNITO_CLIENT_ID}")
+            else:
+                logger.info(
+                    "Audience 검증 비활성화 (토큰에 aud claim이 없거나 CLIENT_ID가 설정되지 않음)"
+                )
+        except Exception as e:
+            logger.warning(f"토큰 페이로드 확인 중 오류: {e}")
+            # 오류가 발생해도 기본 검증은 계속 진행
 
         payload = jwt.decode(token, public_key, **verify_options)
         logger.info("JWT 토큰 검증 성공")
