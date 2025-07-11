@@ -467,7 +467,18 @@ async def verify_payment(
     if pay_res.status_code != 200:
         logger.error("결제 정보 조회 실패")
         return {"status": "fail", "message": "결제 정보 조회 실패"}
-    pay_data = pay_res.json()["response"]
+
+    pay_response = pay_res.json()
+    logger.info(f"Portone API 응답: {pay_response}")
+
+    pay_data = pay_response["response"]
+    logger.info(f"결제 데이터: {pay_data}")
+
+    # 결제 금액 정보 로깅
+    logger.info(f"결제 금액 (amount): {pay_data.get('amount')}")
+    logger.info(f"결제 금액 (total_amount): {pay_data.get('total_amount')}")
+    logger.info(f"결제 금액 (paid_amount): {pay_data.get('paid_amount')}")
+    logger.info(f"결제 상태: {pay_data.get('status')}")
 
     # 3. 결제 상태/금액 등 검증
     if pay_data["status"] != "paid":
@@ -489,14 +500,25 @@ async def verify_payment(
                 logger.error(f"플랜을 찾을 수 없음: {plan_id}")
                 return {"status": "fail", "message": "유효하지 않은 플랜입니다."}
 
-            # 금액 검증
-            if pay_data["amount"] != plan["price"]:
+            # 금액 검증 - 여러 금액 필드 확인
+            payment_amount = (
+                pay_data.get("amount")
+                or pay_data.get("total_amount")
+                or pay_data.get("paid_amount")
+                or 0
+            )
+
+            logger.info(
+                f"결제 금액 (최종): {payment_amount}, 플랜 가격: {plan['price']}"
+            )
+
+            if payment_amount != plan["price"]:
                 logger.error(
-                    f"금액 불일치 - 결제: {pay_data['amount']}, 플랜: {plan['price']}"
+                    f"금액 불일치 - 결제: {payment_amount}, 플랜: {plan['price']}"
                 )
                 return {
                     "status": "fail",
-                    "message": "결제 금액이 플랜 가격과 일치하지 않습니다.",
+                    "message": f"결제 금액({payment_amount})이 플랜 가격({plan['price']})과 일치하지 않습니다.",
                 }
 
             # 5. 사용자 정보 저장/업데이트
@@ -553,7 +575,7 @@ async def verify_payment(
                     subscription_id,
                     imp_uid,
                     merchant_uid,
-                    pay_data["amount"],
+                    payment_amount,
                     "success",
                     pay_data.get("pay_method", "card"),
                 ),
@@ -572,7 +594,7 @@ async def verify_payment(
                     "plan_name": plan["plan_name"],
                     "start_date": start_date.isoformat(),
                     "end_date": end_date.isoformat(),
-                    "amount": pay_data["amount"],
+                    "amount": payment_amount,
                 },
             }
 
